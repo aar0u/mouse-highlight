@@ -16,8 +16,6 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class GlobalMouseListener implements NativeMouseInputListener {
-  static final Ellipse2D.Double SHAPE = new Ellipse2D.Double(0, 0, 50, 50);
-  static final Ellipse2D.Double CLICKED = new Ellipse2D.Double(0, 0, 40, 40);
   static ShapedWindow shapedWindow;
 
   @Override
@@ -29,14 +27,14 @@ public class GlobalMouseListener implements NativeMouseInputListener {
   public void nativeMousePressed(NativeMouseEvent e) {
     System.out.println("Mouse Pressed: " + e.getButton());
     if (shapedWindow == null) return;
-    shapedWindow.setShape(CLICKED);
+    shapedWindow.draw(true);
   }
 
   @Override
   public void nativeMouseReleased(NativeMouseEvent e) {
     System.out.println("Mouse Released: " + e.getButton());
     if (shapedWindow == null) return;
-    shapedWindow.setShape(SHAPE);
+    shapedWindow.draw(false);
   }
 
   @Override
@@ -52,6 +50,8 @@ public class GlobalMouseListener implements NativeMouseInputListener {
   }
 
   public static void main(String[] args) {
+    // System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
+
     try {
       GlobalScreen.registerNativeHook();
     } catch (NativeHookException ex) {
@@ -77,12 +77,6 @@ public class GlobalMouseListener implements NativeMouseInputListener {
     GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
     GraphicsDevice gd = ge.getDefaultScreenDevice();
     final boolean isTranslucencySupported = gd.isWindowTranslucencySupported(TRANSLUCENT);
-
-    // If shaped windows aren't supported, exit.
-    if (!gd.isWindowTranslucencySupported(PERPIXEL_TRANSPARENT)) {
-      System.err.println("Shaped windows are not supported");
-      System.exit(0);
-    }
 
     // If translucent windows aren't supported,
     // create an opaque window.

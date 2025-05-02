@@ -1,39 +1,50 @@
 package org.example;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.geom.Ellipse2D;
 import javax.swing.*;
 
-public class ShapedWindow extends JFrame {
+public class ShapedWindow extends JWindow {
+  private Ellipse2D.Double SHAPE = new Ellipse2D.Double(0, 0, 50, 50);
+  private Ellipse2D.Double CLICKED = new Ellipse2D.Double(0, 0, 40, 40);
+
+  private Ellipse2D.Double currentShape = SHAPE;
+
   public ShapedWindow() {
     setLayout(new GridBagLayout());
-    getContentPane().setBackground(Color.yellow);
 
-    // It is best practice to set the window's shape in
-    // the componentResized method.  Then, if the window
-    // changes size, the shape will be correctly recalculated.
-    addComponentListener(
-        new ComponentAdapter() {
-          // Give the window an elliptical shape.
-          // If the window is resized, the shape is recalculated here.
+    // 创建自定义内容面板用于绘制
+    JPanel panel =
+        new JPanel() {
           @Override
-          public void componentResized(ComponentEvent e) {
-            setShape(GlobalMouseListener.SHAPE);
+          protected void paintComponent(Graphics g) {
+            // 清除背景
+            setOpaque(false);
+            super.paintComponent(g);
+
+            // 使用Graphics2D进行抗锯齿绘制
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setRenderingHint(
+                RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setColor(Color.yellow);
+            g2d.fill(currentShape);
+            g2d.dispose();
           }
-        });
+        };
+    setContentPane(panel);
 
-    setUndecorated(true);
-    setType(Type.UTILITY); // no task bar
+    setBackground(new Color(0, 0, 0, 0)); // 透明背景
     setSize(300, 300);
-    setLocation(MouseInfo.getPointerInfo().getLocation());
+    setPos(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
     setAlwaysOnTop(true);
-    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-    //    add(new JButton("I am a Button"));
   }
 
   public void setPos(int x, int y) {
-    setLocation(x, y);
+    setLocation(x + 5, y + 5);
+  }
+
+  public void draw(boolean pressed) {
+    currentShape = pressed ? CLICKED : SHAPE;
+    repaint();
   }
 }
