@@ -5,13 +5,19 @@ import java.awt.geom.Ellipse2D;
 import javax.swing.*;
 
 public class ShapedWindow extends JWindow {
-  private Ellipse2D.Double SHAPE = new Ellipse2D.Double(0, 0, 50, 50);
-  private Ellipse2D.Double CLICKED = new Ellipse2D.Double(0, 0, 40, 40);
+  private final Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, 50, 50);
+  private final Ellipse2D.Double smallerCircle = new Ellipse2D.Double(0, 0, 40, 40);
 
-  private Ellipse2D.Double currentShape = SHAPE;
+  private Ellipse2D.Double currentShape = circle;
 
   public ShapedWindow() {
-    setLayout(new GridBagLayout());
+    setLayout(null);
+
+    setOpacity(0.7f);
+    setBackground(new Color(0, 0, 0, 0)); // 透明背景
+    setSize(80, 80);
+    setPos(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
+    setAlwaysOnTop(true);
 
     // 创建自定义内容面板用于绘制
     JPanel panel =
@@ -31,12 +37,9 @@ public class ShapedWindow extends JWindow {
             g2d.dispose();
           }
         };
-    setContentPane(panel);
-
-    setBackground(new Color(0, 0, 0, 0)); // 透明背景
-    setSize(300, 300);
-    setPos(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
-    setAlwaysOnTop(true);
+    // setContentPane(panel);
+    setGlassPane(panel);
+    getGlassPane().setVisible(true);
   }
 
   public void setPos(int x, int y) {
@@ -44,7 +47,7 @@ public class ShapedWindow extends JWindow {
   }
 
   public void draw(boolean pressed) {
-    currentShape = pressed ? CLICKED : SHAPE;
-    repaint();
+    currentShape = pressed ? this.smallerCircle : circle;
+    getGlassPane().repaint();
   }
 }

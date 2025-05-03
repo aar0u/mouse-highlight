@@ -1,8 +1,5 @@
 package org.example;
 
-import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
-import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
-
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
@@ -10,7 +7,6 @@ import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Ellipse2D;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -44,7 +40,6 @@ public class GlobalMouseListener implements NativeMouseInputListener {
 
   @Override
   public void nativeMouseMoved(NativeMouseEvent e) {
-    // System.out.println("Mouse Moved: " + e.getX() + ", " + e.getY());
     if (shapedWindow == null) return;
     shapedWindow.setPos(e.getX(), e.getY());
   }
@@ -61,28 +56,10 @@ public class GlobalMouseListener implements NativeMouseInputListener {
       System.exit(1);
     }
 
-    // Construct the example object.
     GlobalMouseListener example = new GlobalMouseListener();
-
     // Add the appropriate listeners.
     GlobalScreen.addNativeMouseListener(example);
     GlobalScreen.addNativeMouseMotionListener(example);
-
-    tray();
-    display();
-  }
-
-  public static void display() {
-    // Determine what the GraphicsDevice can support.
-    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-    GraphicsDevice gd = ge.getDefaultScreenDevice();
-    final boolean isTranslucencySupported = gd.isWindowTranslucencySupported(TRANSLUCENT);
-
-    // If translucent windows aren't supported,
-    // create an opaque window.
-    if (!isTranslucencySupported) {
-      System.out.println("Translucency is not supported, creating an opaque window");
-    }
 
     // Create the GUI on the event-dispatching thread
     SwingUtilities.invokeLater(
@@ -90,16 +67,10 @@ public class GlobalMouseListener implements NativeMouseInputListener {
           @Override
           public void run() {
             shapedWindow = new ShapedWindow();
-
-            // Set the window to 70% translucency, if supported.
-            if (isTranslucencySupported) {
-              shapedWindow.setOpacity(0.7f);
-            }
-
-            // Display the window.
             shapedWindow.setVisible(true);
           }
         });
+    tray();
   }
 
   public static void tray() {
