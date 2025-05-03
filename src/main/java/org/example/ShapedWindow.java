@@ -5,6 +5,8 @@ import java.awt.geom.Ellipse2D;
 import javax.swing.*;
 
 public class ShapedWindow extends JWindow {
+  private static final boolean PAINT_IN_PANEL = false; // paint in panel will cause circle's grey boarder remains when repaint smaller Circle (MACOS)
+
   private final Ellipse2D.Double circle = new Ellipse2D.Double(0, 0, 50, 50);
   private final Ellipse2D.Double smallerCircle = new Ellipse2D.Double(0, 0, 40, 40);
 
@@ -19,27 +21,21 @@ public class ShapedWindow extends JWindow {
     setPos(MouseInfo.getPointerInfo().getLocation().x, MouseInfo.getPointerInfo().getLocation().y);
     setAlwaysOnTop(true);
 
-    // 创建自定义内容面板用于绘制
-    JPanel panel =
-        new JPanel() {
-          @Override
-          protected void paintComponent(Graphics g) {
-            // 清除背景
-            setOpaque(false);
-            super.paintComponent(g);
-
-            // 使用Graphics2D进行抗锯齿绘制
-            Graphics2D g2d = (Graphics2D) g.create();
-            g2d.setRenderingHint(
-                RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setColor(Color.yellow);
-            g2d.fill(currentShape);
-            g2d.dispose();
-          }
-        };
-    // setContentPane(panel);
-    setGlassPane(panel);
-    getGlassPane().setVisible(true);
+    if (PAINT_IN_PANEL) {
+      JPanel panel =
+          new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+              // 清除背景
+              setOpaque(false);
+              super.paintComponent(g);
+              paintShape(g, currentShape);
+            }
+          };
+      // setContentPane(panel);
+      setGlassPane(panel);
+      getGlassPane().setVisible(true);
+    }
   }
 
   public void setPos(int x, int y) {
@@ -48,6 +44,34 @@ public class ShapedWindow extends JWindow {
 
   public void draw(boolean pressed) {
     currentShape = pressed ? this.smallerCircle : circle;
-    getGlassPane().repaint();
+
+    if (PAINT_IN_PANEL) {
+      getGlassPane().repaint();
+    } else {
+      Graphics g = getGraphics();
+      g.clearRect(0, 0, getWidth(), getHeight());
+      paintShape(g, currentShape);
+    }
+  }
+
+  private void paintShape(Graphics g, Ellipse2D fill) {
+    if (g != null) {
+      // 使用Graphics2D进行抗锯齿绘制
+      Graphics2D g2d = (Graphics2D) g.create();
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      g2d.setColor(Color.yellow);
+      g2d.fill(fill);
+      g2d.dispose();
+    }
+  }
+
+  // 处理重绘
+  @Override
+  public void paint(Graphics g) {
+    super.paint(g);
+    // 确保内容被重绘
+    if (!PAINT_IN_PANEL) {
+      draw(currentShape == smallerCircle);
+    }
   }
 }

@@ -5,8 +5,6 @@ import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -63,12 +61,9 @@ public class GlobalMouseListener implements NativeMouseInputListener {
 
     // Create the GUI on the event-dispatching thread
     SwingUtilities.invokeLater(
-        new Runnable() {
-          @Override
-          public void run() {
-            shapedWindow = new ShapedWindow();
-            shapedWindow.setVisible(true);
-          }
+        () -> {
+          shapedWindow = new ShapedWindow();
+          shapedWindow.setVisible(true);
         });
     tray();
   }
@@ -81,12 +76,7 @@ public class GlobalMouseListener implements NativeMouseInputListener {
     SystemTray tray = SystemTray.getSystemTray();
     PopupMenu popup = new PopupMenu();
     MenuItem defaultItem = new MenuItem("    Exit");
-    defaultItem.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            System.exit(0);
-          }
-        });
+    defaultItem.addActionListener(e -> System.exit(0));
     popup.add(defaultItem);
     Image image = null;
     try {
@@ -102,24 +92,11 @@ public class GlobalMouseListener implements NativeMouseInputListener {
             image.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH),
             "Mouse Highlight",
             popup);
-    trayIcon.addActionListener(
-        new ActionListener() {
-          public void actionPerformed(ActionEvent e) {
-            System.out.println("Icon clicked");
-          }
-        });
+    trayIcon.addActionListener(e -> System.out.println("Icon clicked"));
     try {
       tray.add(trayIcon);
     } catch (AWTException e) {
       System.err.println(e);
     }
-
-    // ...
-    // some time later
-    // the application state has changed - update the image
-    //    if (trayIcon != null) {
-    //      trayIcon.setImage(updatedImage);
-    //    }
-    // ...
   }
 }
