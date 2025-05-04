@@ -43,7 +43,7 @@ public class GlobalMouseListener implements NativeMouseInputListener {
   }
 
   public static void main(String[] args) {
-    // System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
+     System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
 
     try {
       GlobalScreen.registerNativeHook();
@@ -75,6 +75,25 @@ public class GlobalMouseListener implements NativeMouseInputListener {
     }
     SystemTray tray = SystemTray.getSystemTray();
     PopupMenu popup = new PopupMenu();
+
+    Menu colorMenu = new Menu("    Color");
+
+    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
+      // Convert enum name to proper case (e.g., BLUE -> Blue)
+      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
+
+      MenuItem colorItem = new MenuItem(colorName);
+      colorItem.addActionListener(e -> {
+        if (shapedWindow != null) {
+          shapedWindow.setColorTheme(theme);
+        }
+      });
+      colorMenu.add(colorItem);
+    }
+
+    popup.add(colorMenu);
+    popup.addSeparator();
+
     MenuItem defaultItem = new MenuItem("    Exit");
     defaultItem.addActionListener(e -> System.exit(0));
     popup.add(defaultItem);

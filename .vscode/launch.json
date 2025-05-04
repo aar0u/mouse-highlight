@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Current File",
+      "request": "launch",
+      "mainClass": "${file}"
+    },
+    {
+      "type": "java",
+      "name": "GlobalMouseListener",
+      "request": "launch",
+      "mainClass": "org.example.GlobalMouseListener",
+      "projectName": "mouse-highlight"
+    }
+  ]
+}
