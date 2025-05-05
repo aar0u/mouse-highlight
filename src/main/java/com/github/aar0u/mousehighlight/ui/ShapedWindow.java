@@ -1,4 +1,4 @@
-package com.github.aar0u.ui;
+package com.github.aar0u.mousehighlight.ui;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

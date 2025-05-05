@@ -1,8 +1,7 @@
-package com.github.aar0u.service;
-
-import com.github.aar0u.ui.LogWindow;
+package com.github.aar0u.mousehighlight.service;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -35,16 +34,17 @@ public class Logger {
   }
 
   public void err(String format, Object... arguments) {
-    err(formatMessage(format, arguments));
-  }
-
-  public void err(String message, Throwable throwable) {
-    err(message);
-    throwable.printStackTrace();
-    // 捕获堆栈信息并添加到日志窗口
-    PrintWriter pw = new PrintWriter(new StringWriter());
-    throwable.printStackTrace(pw);
-    logWindow.appendLog(pw.toString());
+    if (arguments.length > 0 && arguments[arguments.length - 1] instanceof Throwable) {
+      Throwable throwable = (Throwable) arguments[arguments.length - 1];
+      Object[] messageArgs = Arrays.copyOf(arguments, arguments.length - 1);
+      // 捕获堆栈信息并添加到日志窗口
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw);
+      throwable.printStackTrace(pw);
+      err(formatMessage(format, messageArgs) + "\n" + sw);
+    } else {
+      err(formatMessage(format, arguments));
+    }
   }
 
   private String formatMessage(String messagePattern, Object... arguments) {

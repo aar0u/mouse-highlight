@@ -1,16 +1,16 @@
-package com.github.aar0u.listener;
+package com.github.aar0u.mousehighlight.listener;
 
-import com.github.aar0u.ui.ShapedWindow;
-import com.github.aar0u.ui.TrayMenu;
+import com.github.aar0u.mousehighlight.ui.ShapedWindow;
+import com.github.aar0u.mousehighlight.ui.TrayMenu;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
-import com.github.aar0u.service.Logger;
+import com.github.aar0u.mousehighlight.service.Logger;
 
 import javax.swing.*;
 
-public class GlobalMouseListener implements NativeMouseInputListener {
+public class MouseListener implements NativeMouseInputListener {
   private final Logger logger = new Logger(this.getClass().getSimpleName());
   private ShapedWindow shapedWindow;
 
@@ -21,13 +21,28 @@ public class GlobalMouseListener implements NativeMouseInputListener {
 
   @Override
   public void nativeMousePressed(NativeMouseEvent e) {
-    logger.info("Mouse Pressed: {}", e.getButton());
+    String buttonName;
+    switch (e.getButton()) {
+      case NativeMouseEvent.BUTTON1:
+        buttonName = "LEFT";
+        break;
+      case NativeMouseEvent.BUTTON2:
+        buttonName = "RIGHT";
+        break;
+      case NativeMouseEvent.BUTTON3:
+        buttonName = "MIDDLE";
+        break;
+      default:
+        buttonName = "UNKNOWN";
+        break;
+    }
+    logger.info("Mouse Pressed: {} button", buttonName);
     draw(true);
   }
 
   @Override
   public void nativeMouseReleased(NativeMouseEvent e) {
-    logger.info("Mouse Released: {}", e.getButton());
+    // for mouse released - logger.info("Mouse Released: {}", e.getButton())
     draw(false);
   }
 
@@ -52,7 +67,7 @@ public class GlobalMouseListener implements NativeMouseInputListener {
   }
 
   public void start() {
-    logger.info("Starting Mouse Highlight application");
+    logger.info("Starting application");
     System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
 
     try {
@@ -74,9 +89,9 @@ public class GlobalMouseListener implements NativeMouseInputListener {
         });
     new TrayMenu(
         event -> {
-          logger.info("Tray action executed: {}", event);
           ShapedWindow.ColorTheme theme =
               ShapedWindow.ColorTheme.valueOf(event.getActionCommand().toUpperCase());
+          logger.info("Color theme: {}", theme);
           shapedWindow.setColorTheme(theme);
         });
   }
