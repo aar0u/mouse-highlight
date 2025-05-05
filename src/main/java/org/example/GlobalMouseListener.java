@@ -4,9 +4,6 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
-import java.awt.*;
-import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class GlobalMouseListener implements NativeMouseInputListener {
@@ -43,7 +40,7 @@ public class GlobalMouseListener implements NativeMouseInputListener {
   }
 
   public static void main(String[] args) {
-     System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
+    System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
 
     try {
       GlobalScreen.registerNativeHook();
@@ -65,57 +62,12 @@ public class GlobalMouseListener implements NativeMouseInputListener {
           shapedWindow = new ShapedWindow();
           shapedWindow.setVisible(true);
         });
-    tray();
-  }
-
-  public static void tray() {
-    TrayIcon trayIcon = null;
-    if (!SystemTray.isSupported()) {
-      return;
-    }
-    SystemTray tray = SystemTray.getSystemTray();
-    PopupMenu popup = new PopupMenu();
-
-    Menu colorMenu = new Menu("    Color");
-
-    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
-      // Convert enum name to proper case (e.g., BLUE -> Blue)
-      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
-
-      MenuItem colorItem = new MenuItem(colorName);
-      colorItem.addActionListener(e -> {
-        if (shapedWindow != null) {
+    new TrayMenu(
+        event -> {
+          System.out.println("Tray action executed" + event);
+          ShapedWindow.ColorTheme theme =
+              ShapedWindow.ColorTheme.valueOf(event.getActionCommand().toUpperCase());
           shapedWindow.setColorTheme(theme);
-        }
-      });
-      colorMenu.add(colorItem);
-    }
-
-    popup.add(colorMenu);
-    popup.addSeparator();
-
-    MenuItem defaultItem = new MenuItem("    Exit");
-    defaultItem.addActionListener(e -> System.exit(0));
-    popup.add(defaultItem);
-    Image image = null;
-    try {
-      image =
-          ImageIO.read(
-              GlobalMouseListener.class.getClassLoader().getResource("images/icons8-mouse-64.png"));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    int trayIconWidth = new TrayIcon(image).getSize().width;
-    trayIcon =
-        new TrayIcon(
-            image.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH),
-            "Mouse Highlight",
-            popup);
-    trayIcon.addActionListener(e -> System.out.println("Icon clicked"));
-    try {
-      tray.add(trayIcon);
-    } catch (AWTException e) {
-      System.err.println(e);
-    }
+        });
   }
 }
