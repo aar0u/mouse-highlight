@@ -17,7 +17,7 @@ public class LogWindow extends JFrame {
 
     logArea = new JTextArea();
     logArea.setEditable(false);
-    logArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12)); // 使用等宽字体
+    logArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12)); // Use monospace font
 
     JScrollPane scrollPane = new JScrollPane(logArea);
     scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -40,7 +40,7 @@ public class LogWindow extends JFrame {
     getContentPane().add(controlPanel, BorderLayout.NORTH);
     getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-    // 窗口关闭时只隐藏窗口，不退出程序
+    // Hide window instead of exiting program when closing
     setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
     addWindowListener(
@@ -91,7 +91,7 @@ public class LogWindow extends JFrame {
         () -> {
           logArea.append(logMessage + "\n");
           trimLogLines();
-          // 自动滚动到最新日志
+          // Auto-scroll to latest log
           logArea.setCaretPosition(logArea.getDocument().getLength());
         });
   }
@@ -102,7 +102,7 @@ public class LogWindow extends JFrame {
 
   public void showWindow() {
     setVisible(true);
-    toFront(); // 将窗口置于前台
+    toFront(); // Bring window to front
     requestFocus();
   }
 }

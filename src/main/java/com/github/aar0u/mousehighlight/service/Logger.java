@@ -37,7 +37,7 @@ public class Logger {
     if (arguments.length > 0 && arguments[arguments.length - 1] instanceof Throwable) {
       Throwable throwable = (Throwable) arguments[arguments.length - 1];
       Object[] messageArgs = Arrays.copyOf(arguments, arguments.length - 1);
-      // 捕获堆栈信息并添加到日志窗口
+      // Capture stack trace and add to log window
       StringWriter sw = new StringWriter();
       PrintWriter pw = new PrintWriter(sw);
       throwable.printStackTrace(pw);
@@ -58,25 +58,25 @@ public class Logger {
     int previousIndex = 0;
 
     while (argIndex < arguments.length) {
-      // 查找下一个占位符
+      // Find next placeholder
       placeholderIndex = messagePattern.indexOf("{}", previousIndex);
       if (placeholderIndex == -1) {
-        // 没有更多占位符
+        // No more placeholders
         break;
       }
 
-      // 添加占位符前的文本
+      // Add text before placeholder
       result.append(messagePattern, previousIndex, placeholderIndex);
 
-      // 替换占位符为参数值
+      // Replace placeholder with argument value
       result.append(arguments[argIndex]);
 
-      // 更新索引
+      // Update indices
       previousIndex = placeholderIndex + 2;
       argIndex++;
     }
 
-    // 添加剩余的文本
+    // Add remaining text
     result.append(messagePattern.substring(previousIndex));
 
     return result.toString();

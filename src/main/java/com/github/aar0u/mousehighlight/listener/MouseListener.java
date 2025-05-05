@@ -16,7 +16,7 @@ public class MouseListener implements NativeMouseInputListener {
 
   @Override
   public void nativeMouseClicked(NativeMouseEvent e) {
-    // for clicked count - logger.info("Mouse Clicked: {}", e.getClickCount())
+    // Log click count if needed - logger.info("Mouse Clicked: {}", e.getClickCount())
   }
 
   @Override
@@ -42,7 +42,7 @@ public class MouseListener implements NativeMouseInputListener {
 
   @Override
   public void nativeMouseReleased(NativeMouseEvent e) {
-    // for mouse released - logger.info("Mouse Released: {}", e.getButton())
+    // Log mouse button release if needed - logger.info("Mouse Released: {}", e.getButton())
     draw(false);
   }
 
@@ -77,11 +77,11 @@ public class MouseListener implements NativeMouseInputListener {
       System.exit(1);
     }
 
-    // Add the appropriate listeners.
+    // Register mouse event listeners
     GlobalScreen.addNativeMouseListener(this);
     GlobalScreen.addNativeMouseMotionListener(this);
 
-    // Create the GUI on the event-dispatching thread
+    // Initialize and display the window on the Event Dispatch Thread
     SwingUtilities.invokeLater(
         () -> {
           shapedWindow = new ShapedWindow();

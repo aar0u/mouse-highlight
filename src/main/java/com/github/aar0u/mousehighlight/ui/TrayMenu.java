@@ -23,7 +23,7 @@ public class TrayMenu {
     PopupMenu popup = new PopupMenu();
 
     for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
-      // Convert enum name to proper case (e.g., BLUE -> Blue)
+      // Format the color theme name with proper capitalization (e.g., BLUE -> Blue)
       String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
 
       MenuItem colorItem = new MenuItem(colorName);
@@ -59,25 +59,25 @@ public class TrayMenu {
   private Image getIcon() {
     Image image;
     try {
-      // Try to load the icon from resources
+      // Attempt to load the icon from the resources directory
       URL iconUrl = MouseListener.class.getClassLoader().getResource("images/icons8-mouse-64.png");
       if (iconUrl == null) {
         logger.err("Could not find tray icon resource");
-        // Create a fallback icon
+        // Generate a default icon as fallback
         image = createFallbackIcon();
       } else {
         image = ImageIO.read(iconUrl);
       }
     } catch (IOException e) {
       logger.err("Failed to load tray icon image: {}", e.getMessage());
-      // Use fallback icon instead of throwing exception
+      // Use default icon instead of throwing exception
       image = createFallbackIcon();
     }
     return image;
   }
 
   private Image createFallbackIcon() {
-    // Create a simple colored square as fallback icon
+    // Generate a simple blue square as the default icon
     int size = 64;
     BufferedImage fallbackIcon = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
     Graphics2D g2d = fallbackIcon.createGraphics();
