@@ -1,4 +1,4 @@
-package org.example;
+package com.github.aar0u.ui;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

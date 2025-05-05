@@ -1,60 +1,70 @@
-package org.example;
+package com.github.aar0u.listener;
 
+import com.github.aar0u.ui.ShapedWindow;
+import com.github.aar0u.ui.TrayMenu;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
+import com.github.aar0u.service.Logger;
+
 import javax.swing.*;
 
 public class GlobalMouseListener implements NativeMouseInputListener {
-  static ShapedWindow shapedWindow;
+  private final Logger logger = new Logger(this.getClass().getSimpleName());
+  private ShapedWindow shapedWindow;
 
   @Override
   public void nativeMouseClicked(NativeMouseEvent e) {
-    System.out.println("Mouse Clicked: " + e.getClickCount());
+    // for clicked count - logger.info("Mouse Clicked: {}", e.getClickCount())
   }
 
   @Override
   public void nativeMousePressed(NativeMouseEvent e) {
-    System.out.println("Mouse Pressed: " + e.getButton());
-    if (shapedWindow == null) return;
-    shapedWindow.draw(true);
+    logger.info("Mouse Pressed: {}", e.getButton());
+    draw(true);
   }
 
   @Override
   public void nativeMouseReleased(NativeMouseEvent e) {
-    System.out.println("Mouse Released: " + e.getButton());
-    if (shapedWindow == null) return;
-    shapedWindow.draw(false);
+    logger.info("Mouse Released: {}", e.getButton());
+    draw(false);
   }
 
   @Override
   public void nativeMouseDragged(NativeMouseEvent e) {
-    shapedWindow.setPos(e.getX(), e.getY());
+    move(e);
   }
 
   @Override
   public void nativeMouseMoved(NativeMouseEvent e) {
+    move(e);
+  }
+
+  private void draw(boolean pressed) {
+    if (shapedWindow == null) return;
+    shapedWindow.draw(pressed);
+  }
+
+  private void move(NativeMouseEvent e) {
     if (shapedWindow == null) return;
     shapedWindow.setPos(e.getX(), e.getY());
   }
 
-  public static void main(String[] args) {
+  public void start() {
+    logger.info("Starting Mouse Highlight application");
     System.setProperty("jnativehook.lib.path", System.getProperty("java.io.tmpdir"));
 
     try {
       GlobalScreen.registerNativeHook();
     } catch (NativeHookException ex) {
-      System.err.println("There was a problem registering the native hook.");
-      System.err.println(ex.getMessage());
-
+      logger.err("There was a problem registering the native hook: {}", ex.getMessage());
       System.exit(1);
     }
 
-    GlobalMouseListener example = new GlobalMouseListener();
     // Add the appropriate listeners.
-    GlobalScreen.addNativeMouseListener(example);
-    GlobalScreen.addNativeMouseMotionListener(example);
+    GlobalScreen.addNativeMouseListener(this);
+    GlobalScreen.addNativeMouseMotionListener(this);
 
     // Create the GUI on the event-dispatching thread
     SwingUtilities.invokeLater(
@@ -64,7 +74,7 @@ public class GlobalMouseListener implements NativeMouseInputListener {
         });
     new TrayMenu(
         event -> {
-          System.out.println("Tray action executed" + event);
+          logger.info("Tray action executed: {}", event);
           ShapedWindow.ColorTheme theme =
               ShapedWindow.ColorTheme.valueOf(event.getActionCommand().toUpperCase());
           shapedWindow.setColorTheme(theme);

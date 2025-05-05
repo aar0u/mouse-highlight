@@ -1,4 +1,7 @@
-package org.example;
+package com.github.aar0u.ui;
+
+import com.github.aar0u.service.Logger;
+import com.github.aar0u.listener.GlobalMouseListener;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -6,11 +9,9 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class TrayMenu {
-  private final ActionListener listener;
+  private final Logger logger = new Logger(this.getClass().getSimpleName());
 
   public TrayMenu(ActionListener listener) {
-    this.listener = listener;
-
     TrayIcon trayIcon;
     if (!SystemTray.isSupported()) {
       return;
@@ -18,12 +19,22 @@ public class TrayMenu {
     SystemTray tray = SystemTray.getSystemTray();
     PopupMenu popup = new PopupMenu();
 
-    Menu colorMenu = colorMenu();
+    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
+      // Convert enum name to proper case (e.g., BLUE -> Blue)
+      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
 
-    popup.add(colorMenu);
+      MenuItem colorItem = new MenuItem(colorName);
+      colorItem.addActionListener(listener);
+      popup.add(colorItem);
+    }
     popup.addSeparator();
 
-    MenuItem defaultItem = new MenuItem(menuText("Exit"));
+    MenuItem logItem = newMenu("Logging");
+    logItem.addActionListener(e -> LogWindow.getInstance().showWindow());
+    popup.add(logItem);
+    popup.addSeparator();
+
+    MenuItem defaultItem = newMenu("Exit");
     defaultItem.addActionListener(e -> System.exit(0));
     popup.add(defaultItem);
     Image image;
@@ -32,7 +43,7 @@ public class TrayMenu {
           ImageIO.read(
               GlobalMouseListener.class.getClassLoader().getResource("images/icons8-mouse-64.png"));
     } catch (IOException e) {
-      System.err.printf("Failed to load tray icon image: %s%n", e.getMessage());
+      logger.err("Failed to load tray icon image: {}", e.getMessage());
       throw new RuntimeException("Failed to initialize system tray icon", e);
     }
     int trayIconWidth = new TrayIcon(image).getSize().width;
@@ -41,29 +52,16 @@ public class TrayMenu {
             image.getScaledInstance(trayIconWidth, -1, Image.SCALE_SMOOTH),
             "Mouse Highlight",
             popup);
-    trayIcon.addActionListener(e -> System.out.println("Icon clicked"));
+    trayIcon.addActionListener(e -> logger.info("Icon clicked"));
     try {
       tray.add(trayIcon);
     } catch (AWTException e) {
-      System.err.printf("Failed to add system tray icon: %s%n", e.getMessage());
+      logger.err("Failed to add system tray icon: {}", e.getMessage());
     }
   }
 
-  private Menu colorMenu() {
-    Menu colorMenu = new Menu(menuText("Color"));
-    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
-      // Convert enum name to proper case (e.g., BLUE -> Blue)
-      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
-
-      MenuItem colorItem = new MenuItem(colorName);
-      colorItem.addActionListener(listener);
-      colorMenu.add(colorItem);
-    }
-    return colorMenu;
-  }
-
-  private String menuText(String text) {
+  private MenuItem newMenu(String text) {
     String padding = System.getProperty("os.name").toLowerCase().contains("win") ? "    " : "";
-    return padding + text;
+    return new MenuItem(padding + text);
   }
 }
