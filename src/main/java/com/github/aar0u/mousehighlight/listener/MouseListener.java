@@ -88,11 +88,9 @@ public class MouseListener implements NativeMouseInputListener {
           shapedWindow.setVisible(true);
         });
     new TrayMenu(
-        event -> {
-          ShapedWindow.ColorTheme theme =
-              ShapedWindow.ColorTheme.valueOf(event.getActionCommand().toUpperCase());
-          logger.info("Color theme: {}", theme);
-          shapedWindow.setColorTheme(theme);
+        color -> {
+          logger.info("Color theme: {}", color);
+          shapedWindow.setColorTheme(color);
         });
   }
 }

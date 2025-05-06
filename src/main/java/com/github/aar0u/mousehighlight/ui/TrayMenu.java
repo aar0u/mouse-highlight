@@ -1,35 +1,31 @@
 package com.github.aar0u.mousehighlight.ui;
 
+import com.github.aar0u.mousehighlight.listener.MouseListener;
+import com.github.aar0u.mousehighlight.service.ConfigManager;
 import com.github.aar0u.mousehighlight.service.LogWindow;
 import com.github.aar0u.mousehighlight.service.Logger;
-import com.github.aar0u.mousehighlight.listener.MouseListener;
-
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
+import javax.imageio.ImageIO;
 
 public class TrayMenu {
   private final Logger logger = new Logger(this.getClass().getSimpleName());
+  private final ConfigManager configManager = new ConfigManager();
 
-  public TrayMenu(ActionListener listener) {
-    TrayIcon trayIcon;
+  public TrayMenu(Consumer<ShapedWindow.ColorTheme> colorConsumer) {
     if (!SystemTray.isSupported()) {
       return;
     }
     SystemTray tray = SystemTray.getSystemTray();
     PopupMenu popup = new PopupMenu();
 
-    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
-      // Format the color theme name with proper capitalization (e.g., BLUE -> Blue)
-      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
-
-      MenuItem colorItem = new MenuItem(colorName);
-      colorItem.addActionListener(listener);
-      popup.add(colorItem);
-    }
+    List<MenuItem> colorThemeItems = colorMenu(colorConsumer);
+    colorThemeItems.forEach(popup::add);
     popup.addSeparator();
 
     MenuItem logItem = newMenu("Logging");
@@ -40,20 +36,61 @@ public class TrayMenu {
     MenuItem defaultItem = newMenu("Exit");
     defaultItem.addActionListener(e -> System.exit(0));
     popup.add(defaultItem);
-    Dimension trayIconSize = SystemTray.getSystemTray().getTrayIconSize();
-    Image scaledInstance = getIcon().getScaledInstance(trayIconSize.width, -1, Image.SCALE_SMOOTH);
-    trayIcon = new TrayIcon(scaledInstance, "Mouse Highlight", popup);
-    trayIcon.addActionListener(e -> logger.info("Icon clicked"));
+
     try {
-      tray.add(trayIcon);
+      tray.add(createTrayIcon(popup));
     } catch (AWTException e) {
       logger.err("Failed to add system tray icon: {}", e.getMessage());
+    }
+  }
+
+  private List<MenuItem> colorMenu(Consumer<ShapedWindow.ColorTheme> colorConsumer) {
+    List<MenuItem> menuItems = new ArrayList<>();
+
+    for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
+      String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
+      MenuItem colorItem = newMenu(colorName);
+      colorItem.addActionListener(
+          e -> {
+            configManager.setColorTheme(theme);
+            colorConsumer.accept(theme);
+            MenuContainer parent = colorItem.getParent();
+            if (parent instanceof PopupMenu) {
+              updateMenuCheckmarks((PopupMenu) parent, colorItem);
+            }
+          });
+      menuItems.add(colorItem);
+
+      ShapedWindow.ColorTheme savedTheme = configManager.getColorTheme();
+      if (theme == savedTheme) {
+        colorConsumer.accept(theme);
+        colorItem.setLabel(colorItem.getLabel() + " ✓");
+      }
+    }
+    return menuItems;
+  }
+
+  private void updateMenuCheckmarks(PopupMenu popup, MenuItem selectedItem) {
+    for (int i = 0; i < popup.getItemCount(); i++) {
+      MenuItem item = popup.getItem(i);
+      if (item != null) {
+        String label = item.getLabel().replace(" ✓", "");
+        item.setLabel(label + (item == selectedItem ? " ✓" : ""));
+      }
     }
   }
 
   private MenuItem newMenu(String text) {
     String padding = System.getProperty("os.name").toLowerCase().contains("win") ? "    " : "";
     return new MenuItem(padding + text);
+  }
+
+  private TrayIcon createTrayIcon(PopupMenu popup) {
+    Dimension trayIconSize = SystemTray.getSystemTray().getTrayIconSize();
+    Image scaledInstance = getIcon().getScaledInstance(trayIconSize.width, -1, Image.SCALE_SMOOTH);
+    TrayIcon trayIcon = new TrayIcon(scaledInstance, "Mouse Highlight", popup);
+    trayIcon.addActionListener(e -> logger.info("Icon clicked"));
+    return trayIcon;
   }
 
   private Image getIcon() {
