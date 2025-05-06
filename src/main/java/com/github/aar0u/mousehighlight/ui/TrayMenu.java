@@ -64,7 +64,7 @@ public class TrayMenu {
       ShapedWindow.ColorTheme savedTheme = configManager.getColorTheme();
       if (theme == savedTheme) {
         colorConsumer.accept(theme);
-        colorItem.setLabel(colorItem.getLabel() + " ✓");
+        colorItem.setLabel(colorItem.getLabel() + " *");
       }
     }
     return menuItems;
@@ -74,8 +74,8 @@ public class TrayMenu {
     for (int i = 0; i < popup.getItemCount(); i++) {
       MenuItem item = popup.getItem(i);
       if (item != null) {
-        String label = item.getLabel().replace(" ✓", "");
-        item.setLabel(label + (item == selectedItem ? " ✓" : ""));
+        String label = item.getLabel().replace(" *", "");
+        item.setLabel(label + (item == selectedItem ? " *" : ""));
       }
     }
   }
