@@ -9,10 +9,12 @@ import com.github.kwhat.jnativehook.mouse.NativeMouseInputListener;
 import com.github.aar0u.mousehighlight.service.Logger;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class MouseListener implements NativeMouseInputListener {
   private final Logger logger = new Logger(this.getClass().getSimpleName());
   private ShapedWindow shapedWindow;
+  private Timer refreshTimer;
 
   @Override
   public void nativeMouseClicked(NativeMouseEvent e) {
@@ -61,9 +63,10 @@ public class MouseListener implements NativeMouseInputListener {
     shapedWindow.draw(pressed);
   }
 
+  // Only refresh position via timer, not in mouse event handlers
   private void move(NativeMouseEvent e) {
-    if (shapedWindow == null) return;
-    shapedWindow.setPos(e.getX(), e.getY());
+    // if (shapedWindow == null) return;
+    // shapedWindow.setPos(e.getX(), e.getY());
   }
 
   public void start() {
@@ -86,6 +89,15 @@ public class MouseListener implements NativeMouseInputListener {
         () -> {
           shapedWindow = new ShapedWindow();
           shapedWindow.setVisible(true);
+            // Periodically refresh window position and bring to front (only position and z-order, no draw)
+          refreshTimer = new Timer(30, evt -> {
+            if (shapedWindow != null) {
+              Point p = MouseInfo.getPointerInfo().getLocation();
+              shapedWindow.setPos(p.x, p.y);
+              shapedWindow.toFront();
+            }
+          });
+          refreshTimer.start();
         });
     new TrayMenu(
         color -> {
