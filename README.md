@@ -38,3 +38,15 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - [JNativeHook](https://github.com/kwhat/jnativehook) for providing global keyboard and mouse hook functionality
 - Icons from [Icons8](https://icons8.com/)
+
+## Python Version
+
+There is also a Python version of Mouse Highlight (`python-version/mouse_highlight.py`).
+You can package it as an executable for Windows, Mac, or Linux using PyInstaller:
+
+```
+pip install pyinstaller
+pyinstaller --windowed mouse_highlight.py
+```
+
+This will create a platform-specific executable in the `dist` folder (not single-file mode, so startup is faster and no extraction delay).
