@@ -28,12 +28,12 @@ public class TrayMenu {
     colorThemeItems.forEach(popup::add);
     popup.addSeparator();
 
-    MenuItem logItem = newMenu("Logging");
+    MenuItem logItem = new MenuItem("Logging");
     logItem.addActionListener(e -> LogWindow.getInstance().showWindow());
     popup.add(logItem);
     popup.addSeparator();
 
-    MenuItem defaultItem = newMenu("Exit");
+    MenuItem defaultItem = new MenuItem("Exit");
     defaultItem.addActionListener(e -> System.exit(0));
     popup.add(defaultItem);
 
@@ -46,50 +46,39 @@ public class TrayMenu {
 
   private List<MenuItem> colorMenu(Consumer<ShapedWindow.ColorTheme> colorConsumer) {
     List<MenuItem> menuItems = new ArrayList<>();
+    ShapedWindow.ColorTheme savedTheme = configManager.getColorTheme();
 
     for (ShapedWindow.ColorTheme theme : ShapedWindow.ColorTheme.values()) {
       String colorName = theme.name().charAt(0) + theme.name().substring(1).toLowerCase();
-      MenuItem colorItem = newMenu(colorName);
-      colorItem.addActionListener(
-          e -> {
-            configManager.setColorTheme(theme);
-            colorConsumer.accept(theme);
-            MenuContainer parent = colorItem.getParent();
-            if (parent instanceof PopupMenu) {
-              updateMenuCheckmarks((PopupMenu) parent, colorItem);
-            }
-          });
+      CheckboxMenuItem colorItem = new CheckboxMenuItem(colorName, theme == savedTheme);
+      colorItem.addItemListener(e -> {
+        // Uncheck all color items
+        for (MenuItem item : menuItems) {
+          if (item instanceof CheckboxMenuItem) {
+            ((CheckboxMenuItem) item).setState(false);
+          }
+        }
+        // Check the selected item
+        colorItem.setState(true);
+        configManager.setColorTheme(theme);
+        colorConsumer.accept(theme);
+      });
       menuItems.add(colorItem);
-
-      ShapedWindow.ColorTheme savedTheme = configManager.getColorTheme();
       if (theme == savedTheme) {
         colorConsumer.accept(theme);
-        colorItem.setLabel(colorItem.getLabel() + " *");
       }
     }
     return menuItems;
-  }
-
-  private void updateMenuCheckmarks(PopupMenu popup, MenuItem selectedItem) {
-    for (int i = 0; i < popup.getItemCount(); i++) {
-      MenuItem item = popup.getItem(i);
-      if (item != null) {
-        String label = item.getLabel().replace(" *", "");
-        item.setLabel(label + (item == selectedItem ? " *" : ""));
-      }
-    }
-  }
-
-  private MenuItem newMenu(String text) {
-    String padding = System.getProperty("os.name").toLowerCase().contains("win") ? "    " : "";
-    return new MenuItem(padding + text);
   }
 
   private TrayIcon createTrayIcon(PopupMenu popup) {
     Dimension trayIconSize = SystemTray.getSystemTray().getTrayIconSize();
     Image scaledInstance = getIcon().getScaledInstance(trayIconSize.width, -1, Image.SCALE_SMOOTH);
     TrayIcon trayIcon = new TrayIcon(scaledInstance, "Mouse Highlight", popup);
-    trayIcon.addActionListener(e -> logger.info("Icon clicked"));
+    trayIcon.addActionListener(e -> {
+      logger.info("Icon clicked");
+      LogWindow.getInstance().showWindow();
+    });
     return trayIcon;
   }
 

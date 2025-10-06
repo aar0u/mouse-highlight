@@ -90,7 +90,7 @@ public class MouseListener implements NativeMouseInputListener {
           shapedWindow = new ShapedWindow();
           shapedWindow.setVisible(true);
             // Periodically refresh window position and bring to front (only position and z-order, no draw)
-          refreshTimer = new Timer(30, evt -> {
+          refreshTimer = new Timer(16, evt -> {
             if (shapedWindow != null) {
               Point p = MouseInfo.getPointerInfo().getLocation();
               shapedWindow.setPos(p.x, p.y);

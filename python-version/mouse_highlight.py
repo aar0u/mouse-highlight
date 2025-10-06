@@ -45,7 +45,7 @@ class OverlayWidget(QtWidgets.QWidget):
         # Timer for cursor tracking
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.update_cursor_pos)
-        self.timer.start(20)
+        self.timer.start(16)
 
         self.show()
 
