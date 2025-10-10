@@ -1,14 +1,18 @@
 import os, sys
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import Qt
+from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt
 
-# pip install PyQt5 PyInstaller
 
-# pyinstaller --contents-directory . --windowed --icon=meeting.ico --add-data "meeting.ico;." --distpath %USERPROFILE%\temp\dist --workpath %USERPROFILE%\temp\build huddle.py1
-# pyinstaller --onefile --windowed --icon=meeting.ico --add-data "meeting.ico;." --distpath %USERPROFILE%\temp\dist --workpath %USERPROFILE%\temp\build huddle.py1
+def load_names():
+    try:
+        with open("names.txt", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
+    except Exception as e:
+        app = QtWidgets.QApplication(sys.argv)
+        QtWidgets.QMessageBox.critical(None, "Error", f"Failed to load list:\n{e}")
+        sys.exit(1)
 
-with open("names.txt", encoding="utf-8") as f:
-    names = [line.strip() for line in f if line.strip()]
+names = load_names()
 
 class CheckboxListApp(QtWidgets.QWidget):
     BASE_STYLE = "QCheckBox { font-size: 18px; min-height: 32px; }"
@@ -86,12 +90,12 @@ class CheckboxListApp(QtWidgets.QWidget):
                 cb.setStyleSheet(self.BASE_STYLE)
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            self.oldPos = event.globalPos()
+            self.oldPos = event.globalPosition().toPoint()
     def mouseMoveEvent(self, event):
         if self.oldPos:
-            delta = event.globalPos() - self.oldPos
+            delta = event.globalPosition().toPoint() - self.oldPos
             self.move(self.x() + delta.x(), self.y() + delta.y())
-            self.oldPos = event.globalPos()
+            self.oldPos = event.globalPosition().toPoint()
     def mouseReleaseEvent(self, event):
         self.oldPos = None
 
@@ -107,4 +111,4 @@ if __name__ == "__main__":
     app.setWindowIcon(QtGui.QIcon(icon_path))
     window = CheckboxListApp()
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
