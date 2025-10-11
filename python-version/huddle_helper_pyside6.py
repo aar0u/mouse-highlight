@@ -1,6 +1,7 @@
 import os, sys
-from PyQt6 import QtWidgets, QtGui
-from PyQt6.QtCore import Qt
+from PySide6 import QtWidgets, QtGui
+from PySide6.QtCore import Qt
+
 
 def load_names():
     try:
@@ -20,7 +21,7 @@ class CheckboxListApp(QtWidgets.QWidget):
         super().__init__()
         self.x_states = {}  # Track X state for each checkbox
         self.setWindowTitle("Huddle Helper")
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.layout = QtWidgets.QVBoxLayout()
         self.layout.addWidget(self.create_title_bar())
         label = QtWidgets.QLabel("Names")
@@ -48,14 +49,14 @@ class CheckboxListApp(QtWidgets.QWidget):
         # Minimize button
         min_btn = QtWidgets.QPushButton()
         min_btn.setFixedSize(28, 28)
-        min_btn.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TitleBarMinButton))
+        min_btn.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_TitleBarMinButton))
         min_btn.setStyleSheet("QPushButton { border: none; background: transparent; border-radius: 6px; } QPushButton:hover { background: #40a9ff; color: white; }")
         min_btn.clicked.connect(self.showMinimized)
         title_layout.addWidget(min_btn)
         # Close button
         close_btn = QtWidgets.QPushButton()
         close_btn.setFixedSize(28, 28)
-        close_btn.setIcon(self.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_TitleBarCloseButton))
+        close_btn.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_TitleBarCloseButton))
         close_btn.setStyleSheet("QPushButton { border: none; background: transparent; border-radius: 6px; } QPushButton:hover { background: #ff4d4f; color: white; }")
         close_btn.clicked.connect(self.close)
         title_layout.addWidget(close_btn)
@@ -73,12 +74,12 @@ class CheckboxListApp(QtWidgets.QWidget):
         self.x_states[name] = False
         return row_widget, cb
     def handle_checkbox_mouse(self, event, cb, name):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == Qt.LeftButton:
             cb.toggle()
             self.x_states[name] = False
             cb.setText(name)
             cb.setStyleSheet(self.BASE_STYLE)
-        elif event.button() == Qt.MouseButton.RightButton:
+        elif event.button() == Qt.RightButton:
             self.x_states[name] = not self.x_states[name]
             if self.x_states[name]:
                 cb.setChecked(False)
@@ -88,7 +89,7 @@ class CheckboxListApp(QtWidgets.QWidget):
                 cb.setText(name)
                 cb.setStyleSheet(self.BASE_STYLE)
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
+        if event.button() == Qt.LeftButton:
             self.oldPos = event.globalPosition().toPoint()
     def mouseMoveEvent(self, event):
         if self.oldPos:

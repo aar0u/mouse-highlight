@@ -1,2 +1,1 @@
-pdm install
-pdm run python huddle_helper.py
+uv run python huddle_helper.py
